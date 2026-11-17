@@ -1,5 +1,6 @@
 'use client';
 
+import { DeleteAccountCard } from '@/components/settings/DeleteAccountCard';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BentoCard } from '@/components/ui/BentoCard';
@@ -83,6 +84,7 @@ export default function CreativeProfileSettingsPage() {
   const field = 'field-input';
 
   return (
+    <div className="space-y-6">
     <form onSubmit={handleSubmit} className="space-y-6">
       <BentoCard className="p-6">
         <div className="flex items-start justify-between mb-8">
@@ -181,5 +183,7 @@ export default function CreativeProfileSettingsPage() {
         </div>
       </BentoCard>
     </form>
+    <DeleteAccountCard />
+    </div>
   );
 }

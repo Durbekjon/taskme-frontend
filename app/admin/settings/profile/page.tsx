@@ -1,5 +1,6 @@
 'use client';
 
+import { DeleteAccountCard } from '@/components/settings/DeleteAccountCard';
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { User, Camera, Call, Sms, Location, Briefcase, Setting2 } from 'iconsax-react';
@@ -255,6 +256,9 @@ export default function ProfileSettingsPage() {
           </button>
         </div>
       </form>
+      <div className="mt-6">
+        <DeleteAccountCard />
+      </div>
     </motion.div>
   );
 }

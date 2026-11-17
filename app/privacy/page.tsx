@@ -49,9 +49,10 @@ export default function PrivacyPage() {
 
       <h2>Retention and deletion</h2>
       <p>
-        We keep your data while your account is active. You can ask us to delete your account and associated data
-        at any time by writing to <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>; we complete deletion
-        within 30 days. Stored Google tokens are deleted immediately when you disconnect Google or delete your account.
+        We keep your data while your account is active. You can delete your account at any time from
+        Settings → Profile (web) or Profile (mobile app): your personal details are removed immediately, while
+        bookings and payments you took part in remain with the studio without identifying you. You can also
+        write to <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> and we will complete deletion within 30 days. Stored Google tokens are deleted immediately when you disconnect Google or delete your account.
       </p>
 
       <h2>Security</h2>

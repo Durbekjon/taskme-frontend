@@ -12,8 +12,10 @@ export default function SupportPage() {
       </p>
       <h2>Delete your account</h2>
       <p>
-        Send a request from your account email to <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> with the
-        subject &quot;Delete my account&quot;. Your account and data are removed within 30 days.
+        In the web app open <b>Settings → Profile → Delete account</b>; in the mobile app open
+        <b> Profile → Delete account</b>. Your personal data is removed immediately and you are signed out
+        everywhere. If you can no longer sign in, email <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> from
+        your account address and we will delete it within 30 days.
       </p>
       <h2>Disconnect Google</h2>
       <p>
