@@ -47,9 +47,8 @@ test.describe('unauthenticated visitors', () => {
   });
 });
 
-test('the login screen is served at the root path', async ({ page }) => {
-  // The old spec navigated to `/login`, which is not a route in this app.
-  await page.goto('/');
+test('the login screen is served at /auth/login', async ({ page }) => {
+  await page.goto('/auth/login');
   await expect(page.getByPlaceholder('admin@taskme.com')).toBeVisible();
   await expect(page.getByRole('button', { name: /Sign in with Google/i })).toBeVisible();
 });

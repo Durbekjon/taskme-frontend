@@ -47,14 +47,14 @@ export function proxy(request: NextRequest) {
     pathname.startsWith('/onboarding');
 
   if (isProtected && (!token || expired)) {
-    const response = redirect(request, '/?error=session_expired');
+    const response = redirect(request, '/auth/login?error=session_expired');
     response.cookies.delete(ACCESS_TOKEN_COOKIE);
     return response;
   }
 
   if (!expired) {
     // Signed-in users should not sit on the login screen.
-    if (pathname === '/') {
+    if (pathname === '/auth/login') {
       if (roles.includes('ADMIN')) return redirect(request, '/admin/dashboard');
       if (roles.includes('CREATIVE')) return redirect(request, '/creative/dashboard');
       return redirect(request, '/onboarding');
@@ -87,5 +87,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/admin/:path*', '/creative/:path*', '/onboarding/:path*'],
+  matcher: ['/auth/login', '/admin/:path*', '/creative/:path*', '/onboarding/:path*'],
 };

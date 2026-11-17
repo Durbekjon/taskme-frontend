@@ -15,7 +15,7 @@ const itemVariants: Variants = {
    hidden: { opacity: 0, y: 16 },
    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
 };
-import { crewApi } from '@/libs/endpoints';
+import { calendarApi, crewApi, type CalendarStatus } from '@/libs/endpoints';
 import { isActiveAssignment, localSchedule } from '@/libs/format';
 
 /** "2026-09-13", "2026-09-19" -> "Sep 13 - 19, 2026" (US reading order). */
@@ -47,6 +47,7 @@ export default function CreativeSchedulePage() {
                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">My Schedule</h1>
                <p className="text-sm text-gray-500 mt-0.5">Manage your upcoming bookings and shoots.</p>
             </div>
+            <GoogleCalendarControl />
          </motion.div>
 
          {/* ── Calendar ──────────────────────────────────────────── */}
@@ -107,6 +108,13 @@ function ScheduleCard() {
          if (!user?.id) return;
          try {
             const assignments = await crewApi.listMine();
+            // Google events are optional context: a missing grant or a Google
+            // outage must not hide the bookings themselves.
+            const from = new Date();
+            from.setDate(from.getDate() - 30);
+            const to = new Date();
+            to.setDate(to.getDate() + 60);
+            const external = await calendarApi.events(from, to).catch(() => []);
             const colors = [
                'bg-blue-500/15 text-blue-700 border-blue-500',
                'bg-indigo-500/15 text-indigo-700 border-indigo-500',
@@ -127,7 +135,22 @@ function ScheduleCard() {
                         endTime: local.endTime || '17:00',
                         color: colors[i % colors.length],
                      };
-                  }),
+                  })
+                  .concat(
+                     external.map((g) => {
+                        const start = new Date(g.startAt);
+                        const end = g.endAt ? new Date(g.endAt) : new Date(start.getTime() + 3600_000);
+                        const hm = (d: Date) => `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+                        return {
+                           id: `g-${g.id}`,
+                           title: g.title,
+                           date: formatDateKey(start),
+                           startTime: g.allDay ? '00:00' : hm(start),
+                           endTime: g.allDay ? '23:59' : hm(end),
+                           color: 'bg-gray-500/10 text-gray-600 border-gray-400 border-dashed',
+                        };
+                     }),
+                  ),
             );
          } catch (e) {
             console.error('Failed to fetch schedule', e);
@@ -392,5 +415,55 @@ function ScheduleCard() {
             </div>
          )}
       </BentoCard>
+   );
+}
+
+/** Shows whether Google Calendar is linked and lets the creative link or unlink it. */
+function GoogleCalendarControl() {
+   const [status, setStatus] = useState<CalendarStatus | null>(null);
+   const [busy, setBusy] = useState(false);
+
+   React.useEffect(() => {
+      calendarApi.status().then(setStatus).catch(() => setStatus(null));
+   }, []);
+
+   if (!status?.available) return null;
+
+   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+
+   if (!status.connected) {
+      return (
+         <button
+            onClick={() => { window.location.href = `${apiUrl}/auth/google`; }}
+            className="rounded-full bg-black text-white text-sm font-semibold px-4 py-2 hover:bg-gray-800 transition-colors"
+         >
+            Connect Google Calendar
+         </button>
+      );
+   }
+
+   return (
+      <div className="flex items-center gap-3">
+         <span className="flex items-center gap-2 text-sm font-medium text-gray-700">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            Google Calendar synced
+         </span>
+         <button
+            disabled={busy}
+            onClick={async () => {
+               if (!window.confirm('Disconnect Google Calendar? Task.me will stop reading your events and adding accepted jobs.')) return;
+               setBusy(true);
+               try {
+                  setStatus(await calendarApi.disconnect());
+                  window.location.reload();
+               } finally {
+                  setBusy(false);
+               }
+            }}
+            className="rounded-full border border-gray-200 bg-white/80 text-sm font-semibold px-3 py-1.5 text-gray-700 hover:bg-white disabled:opacity-50"
+         >
+            Disconnect
+         </button>
+      </div>
    );
 }

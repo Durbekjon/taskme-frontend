@@ -4,6 +4,7 @@ import { UserProvider } from '@/libs/user-context';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: { default: 'Task.me — Creative Studio Manager', template: '%s | Task.me' },
   description: 'Centralize and automate your creative studio workflows — bookings, crew scheduling, invoicing, and financial operations in one unified platform.',
   keywords: ['creative studio', 'production management', 'freelancer platform', 'crew scheduling', 'invoicing'],

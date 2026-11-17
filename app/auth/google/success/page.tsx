@@ -15,7 +15,7 @@ function GoogleSuccessHandler() {
   useEffect(() => {
     const token = searchParams.get('token');
     if (!token) {
-      router.replace('/?error=google_auth_failed');
+      router.replace('/auth/login?error=google_auth_failed');
       return;
     }
 
