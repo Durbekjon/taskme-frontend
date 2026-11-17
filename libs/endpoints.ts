@@ -185,3 +185,27 @@ export const studioApi = {
       .then((r) => r.data);
   },
 };
+
+export interface CalendarStatus {
+  available: boolean;
+  connected: boolean;
+}
+
+export interface ExternalCalendarEvent {
+  id: string;
+  title: string;
+  startAt: string;
+  endAt: string | null;
+  allDay: boolean;
+}
+
+export const calendarApi = {
+  status: () => api.get<CalendarStatus>('/calendar/status').then((r) => r.data),
+  events: (from: Date, to: Date) =>
+    api
+      .get<ExternalCalendarEvent[]>('/calendar/events', {
+        params: { from: from.toISOString(), to: to.toISOString() },
+      })
+      .then((r) => r.data),
+  disconnect: () => api.delete<CalendarStatus>('/calendar/connection').then((r) => r.data),
+};
