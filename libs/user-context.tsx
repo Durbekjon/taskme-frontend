@@ -56,7 +56,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(() => {
     clearToken();
     setUser(null);
-    router.replace('/');
+    router.replace('/auth/login');
   }, [router]);
 
   useEffect(() => {

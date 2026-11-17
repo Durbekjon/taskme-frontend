@@ -263,3 +263,18 @@ body {
 .btn-ghost:hover:not(:disabled) {
   background-color: rgba(0, 0, 0, 0.05);
 }
+
+/* ─── Landing ─────────────────────────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Landing scales with the viewport on large screens so it doesn't look
+ * like a postage stamp on 1920px+ displays. Scoped to the landing page. */
+@media (min-width: 1536px) {
+  html:has(.landing) { font-size: clamp(16px, 1.05vw, 24px); }
+}
+
+/* The landing uses the flat page colour, without the static hero image. */
+html:has(.landing) body { background-image: none; }

@@ -20,8 +20,8 @@ api.interceptors.response.use(
     // back to sign-in instead of letting every page fail silently.
     if (error.response?.status === 401 && typeof window !== 'undefined') {
       clearToken();
-      if (window.location.pathname !== '/') {
-        window.location.href = '/?error=session_expired';
+      if (window.location.pathname !== '/auth/login') {
+        window.location.href = '/auth/login?error=session_expired';
       }
     }
     return Promise.reject(error);
