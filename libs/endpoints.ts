@@ -59,6 +59,8 @@ export const authApi = {
 };
 
 export const usersApi = {
+  deleteAccount: () => api.delete<{ deleted: boolean }>('/users/me').then((r) => r.data),
+
   get: (id: string) => api.get<UserProfile>(`/users/${id}`).then((r) => r.data),
 
   updateMe: (payload: UpdateProfilePayload) =>
