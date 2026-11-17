@@ -47,6 +47,24 @@ export default function OnboardingForm() {
 
   const [submitError, setSubmitError] = useState('');
 
+  // WhatsApp verification is switched on server-side once Meta approves the
+  // business; until then the number is just saved.
+  const [otpRequired, setOtpRequired] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [resendIn, setResendIn] = useState(0);
+
+  useEffect(() => {
+    authApi.config().then((c) => setOtpRequired(c.whatsappOtpRequired)).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
+
   // Worker public IDs are "TM-######" everywhere else - this used to mint
   // "#CR-XXXXXX", which no studio could ever type into the invite box.
   const generateCreativeId = () => {
@@ -55,6 +73,34 @@ export default function OnboardingForm() {
   };
 
   const handleNext = () => setStep(s => s + 1);
+
+  const handleSendOtp = async () => {
+    setLoading(true);
+    setOtpError('');
+    try {
+      const res = await authApi.sendWhatsappOtp(formData.whatsapp.replace(/[\s()-]/g, ''));
+      setOtpSent(true);
+      setOtp('');
+      setResendIn(res.resendAfterSeconds ?? 60);
+    } catch (e) {
+      setOtpError(apiErrorMessage(e, 'Failed to send the code. Check the number and try again.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setLoading(true);
+    setOtpError('');
+    try {
+      await authApi.verifyWhatsappOtp(otp);
+      handleNext();
+    } catch (e) {
+      setOtpError(apiErrorMessage(e, 'Invalid code.'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRoleSelect = (role: Role) => {
     setFormData(prev => ({ ...prev, role }));
@@ -113,27 +159,83 @@ export default function OnboardingForm() {
           >
             <div>
               <h1 className="text-display mb-2">Welcome to Task.me</h1>
-              <p className="text-text-secondary text-body">Let&apos;s get started by connecting your WhatsApp account.</p>
+              <p className="text-text-secondary text-body">
+                {otpSent
+                  ? `Enter the 6-digit code we sent to ${formData.whatsapp} on WhatsApp.`
+                  : 'Let\'s get started by connecting your WhatsApp account.'}
+              </p>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-caption uppercase tracking-wider text-text-muted">WhatsApp Number</label>
-              <input
-                type="text"
-                placeholder="+1 234 567 8900"
-                className="w-full bg-white/50 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black/5"
-                value={formData.whatsapp}
-                onChange={e => setFormData(p => ({ ...p, whatsapp: e.target.value }))}
-              />
-            </div>
+            {!otpSent ? (
+              <div className="flex flex-col gap-2">
+                <label className="text-caption uppercase tracking-wider text-text-muted">WhatsApp Number</label>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder="+1 234 567 8900"
+                  className="w-full bg-white/50 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black/5"
+                  value={formData.whatsapp}
+                  onChange={e => setFormData(p => ({ ...p, whatsapp: e.target.value }))}
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <label className="text-caption uppercase tracking-wider text-text-muted">Verification Code</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="123456"
+                  maxLength={6}
+                  autoFocus
+                  className="w-full bg-white/50 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black/5 tracking-widest text-center text-xl font-medium"
+                  value={otp}
+                  onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
+                />
+                <div className="flex justify-between text-sm text-text-secondary">
+                  <button type="button" className="hover:text-black" onClick={() => { setOtpSent(false); setOtpError(''); }}>
+                    Change number
+                  </button>
+                  <button
+                    type="button"
+                    className="hover:text-black disabled:opacity-50"
+                    disabled={resendIn > 0 || loading}
+                    onClick={handleSendOtp}
+                  >
+                    {resendIn > 0 ? `Resend in ${resendIn}s` : 'Resend code'}
+                  </button>
+                </div>
+              </div>
+            )}
 
-            <GlassButton
-              className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-black text-white rounded-xl hover:bg-black/80"
-              onClick={handleNext}
-              disabled={!formData.whatsapp}
-            >
-              Continue <ArrowRight size={18} />
-            </GlassButton>
+            {otpError && <p className="text-red-500 text-sm">{otpError}</p>}
+
+            {!otpRequired ? (
+              <GlassButton
+                className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-black text-white rounded-xl hover:bg-black/80"
+                onClick={handleNext}
+                disabled={!formData.whatsapp}
+              >
+                Continue <ArrowRight size={18} />
+              </GlassButton>
+            ) : !otpSent ? (
+              <GlassButton
+                className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-black text-white rounded-xl hover:bg-black/80"
+                onClick={handleSendOtp}
+                disabled={loading || !formData.whatsapp}
+              >
+                {loading ? 'Sending...' : 'Send Code'} <ArrowRight size={18} />
+              </GlassButton>
+            ) : (
+              <GlassButton
+                className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-black text-white rounded-xl hover:bg-black/80"
+                onClick={handleVerifyOtp}
+                disabled={loading || otp.length !== 6}
+              >
+                {loading ? 'Verifying...' : 'Verify Code'} <Check size={18} />
+              </GlassButton>
+            )}
           </motion.div>
         )}
 
