@@ -18,10 +18,14 @@ export default function PrivacyPage() {
 
       <h2>Google user data</h2>
       <p>
-        If you sign in with Google we request access to your basic profile, email address and Google Calendar.
-        Calendar access is used only to read your events so they can be shown alongside your bookings and to
-        avoid scheduling conflicts. We do not use Google user data for advertising, we do not sell it, and we do
-        not allow humans to read it except with your consent, for security purposes, or where required by law.
+        If you sign in with Google we request access to your basic profile, email address and the events in your
+        Google Calendar (the <code>calendar.events</code> permission). We use it only for scheduling: we read your
+        events so they can be shown next to your bookings and help you avoid double-booking, and we add, update
+        and remove events for the bookings and crew assignments you take part in in Task.me. We do not access
+        other calendars&apos; settings, we do not use Google user data for advertising, we do not sell it, and we
+        do not allow humans to read it except with your consent, for security purposes, or where required by
+        law. You can disconnect Google Calendar at any time, which revokes our access and deletes the stored
+        tokens.
       </p>
       <p>
         {COMPANY.name}&apos;s use and transfer of information received from Google APIs adheres to the{' '}
