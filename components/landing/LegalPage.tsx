@@ -4,7 +4,7 @@ import { Footer } from './Landing';
 /** Edit these before submitting to Google / Meta / the app stores. */
 export const COMPANY = {
   name: 'Task.me',
-  email: 'support@taskme.app',
+  email: 'support@gettask.me',
   updated: 'November 16, 2026',
 };
 
