@@ -18,14 +18,38 @@ export default function PrivacyPage() {
 
       <h2>Google user data</h2>
       <p>
-        If you sign in with Google we request access to your basic profile, email address and the events in your
-        Google Calendar (the <code>calendar.events</code> permission). We use it only for scheduling: we read your
-        events so they can be shown next to your bookings and help you avoid double-booking, and we add, update
-        and remove events for the bookings and crew assignments you take part in in Task.me. We do not access
-        other calendars&apos; settings, we do not use Google user data for advertising, we do not sell it, and we
-        do not allow humans to read it except with your consent, for security purposes, or where required by
-        law. You can disconnect Google Calendar at any time, which revokes our access and deletes the stored
-        tokens.
+        <b>Data we access.</b> If you sign in with Google we receive your name, email address and profile photo
+        (the <code>openid</code>, <code>userinfo.email</code> and <code>userinfo.profile</code> permissions) and,
+        with the <code>calendar.events</code> permission, the events in your primary Google Calendar: their
+        title, time, location and status. We also receive OAuth access and refresh tokens so we can reach your
+        calendar on your behalf.
+      </p>
+      <p>
+        <b>How we use it.</b> Your name, email and photo are used to create and identify your Task.me account.
+        Calendar events are read only to show your existing commitments next to your Task.me bookings so you can
+        avoid double-booking. We write to your calendar only to add, update and remove events for the bookings
+        and crew assignments you take part in in Task.me. Google user data is not used for advertising, for
+        credit or lending decisions, or to train AI/ML models, and is never used for any purpose other than
+        these user-facing features.
+      </p>
+      <p>
+        <b>Sharing and transfer.</b> We do not sell Google user data and do not share it with advertisers, data
+        brokers or other third parties. It is processed only by our hosting provider to run the service. Events
+        that Task.me adds to your calendar contain booking details that the studio you work with already has.
+        Humans at {COMPANY.name} do not read your calendar data except with your consent, for security
+        purposes, or where required by law.
+      </p>
+      <p>
+        <b>Protection.</b> Google user data travels only over encrypted connections (HTTPS/TLS). OAuth tokens are
+        stored in our database on servers that are not publicly accessible, and access is restricted to the
+        systems and staff that operate the service.
+      </p>
+      <p>
+        <b>Retention and deletion.</b> Calendar events read from Google are not stored: they are fetched when you
+        open your schedule and discarded after they are shown. OAuth tokens are kept only while Google Calendar
+        is connected. When you choose &quot;Disconnect Google Calendar&quot; or delete your account, we revoke
+        the access with Google and delete the stored tokens immediately; Task.me then stops reading or writing
+        your calendar.
       </p>
       <p>
         {COMPANY.name}&apos;s use and transfer of information received from Google APIs adheres to the{' '}
